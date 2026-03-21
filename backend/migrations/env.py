@@ -5,25 +5,25 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from backend.app.database import Base
-from models.Deteccao import Deteccao
-from models.Imagem import Imagens
-from models.Planta import Plantas
-from models.Praga import Pragas
-from models.Recomendacao import Recomendacao
-from models.Usuario import Usuarios
+from app.database import Base
+
+from app.models.Deteccao import Deteccao
+from app.models.Imagem import Imagem
+from app.models.Planta import Planta
+from app.models.Doenca import Doenca
+from app.models.Recomendacao import Recomendacao
+from app.models.Usuario import Usuario
+
 
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
-target_metadata = Base.metadata
 
+target_metadata = Base.metadata
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-database_url = os.getenv("DATABASE_URL")
-config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

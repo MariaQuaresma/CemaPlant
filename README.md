@@ -1,12 +1,10 @@
-# 🌱 CemaPlant – IA Identifica Pragas
+# 🌱 CemaPlant – Identifica Doenças nas plantas
 
-O **CemaPlant** é um aplicativo que utiliza **Inteligência Artificial, Visão Computacional e Machine Learning** para auxiliar agricultores familiares na identificação de pragas em plantações. A partir do envio de imagens pelo usuário, o sistema analisa a planta, identifica possíveis pragas e fornece recomendações de **remédios caseiros e tratamentos naturais** para ajudar no controle da infestação.
+O **CemaPlant** é um aplicativo que utiliza **Inteligência Artificial, Visão Computacional e Machine Learning** para auxiliar agricultores familiares na identificação de doenças em plantações. A partir do envio de imagens, o sistema analisa a planta, identifica possíveis doenças e fornece recomendações de **remédios caseiros e tratamentos naturais** para ajudar no controle da infestação.
 
 ---
 
 # 🧠 Tecnologias Utilizadas
-
-Backend:
 * Python
 * FastAPI
 * SQLAlchemy
@@ -17,9 +15,6 @@ Inteligência Artificial:
 * Visão Computacional
 * Machine Learning
 
-Mobile:
-* React Native (Android)
----
 
 # ⚙️ Como iniciar o projeto
 1️⃣ Clonar o repositório
