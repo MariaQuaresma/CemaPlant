@@ -4,7 +4,7 @@ from app.models.Doenca import Doenca
 from app.models.Planta import Planta
 from app.schemas.Deteccao_schema import DeteccaoComRecomendacaoRead
 from app.services.doenca_service import predizer_doenca
-from app.services.deteccao_service import salvar_deteccao
+from app.services.deteccao_service import salvar_deteccao, listar_deteccoes_por_usuario, buscar_deteccao_por_id, listar_todas_deteccoes
 from app.services.recomendacao_service import gerar_recomendacao_por_deteccao, criar_recomendacao
 from app.services.imagem_service import criar_imagem
 import os
@@ -79,3 +79,63 @@ def detectar_doenca(file: UploadFile = File(...), usuario=Depends(get_usuario_lo
         )
     finally:
         db.close()
+
+@router.get("/usuario", response_model=list[DeteccaoComRecomendacaoRead])
+def listar_deteccoes_usuario(usuario=Depends(get_usuario_logado)):
+    try:
+        deteccoes = listar_deteccoes_por_usuario(usuario.id)
+        return [
+            {
+                "id": d.id,
+                "imagem_id": d.imagem_id,
+                "planta_id": d.planta_id,
+                "doenca_id": d.doenca_id,
+                "porcentagem_confianca": d.porcentagem_confianca,
+                "data_deteccao": d.data_deteccao,
+                "recomendacao": d.recomendacoes[0].texto_recomendacao if d.recomendacoes else None
+            }
+            for d in deteccoes
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/todas", response_model=list[DeteccaoComRecomendacaoRead])
+def todas_deteccoes(usuario=Depends(get_usuario_logado)):
+    try:
+        deteccoes = listar_todas_deteccoes()
+        return [
+            {
+                "id": d.id,
+                "imagem_id": d.imagem_id,
+                "planta_id": d.planta_id,
+                "doenca_id": d.doenca_id,
+                "porcentagem_confianca": d.porcentagem_confianca,
+                "data_deteccao": d.data_deteccao,
+                "recomendacao": d.recomendacoes[0].texto_recomendacao if d.recomendacoes else None
+            }
+            for d in deteccoes
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/{deteccao_id}", response_model=DeteccaoComRecomendacaoRead)
+def buscar_deteccao(deteccao_id: int, usuario=Depends(get_usuario_logado)):
+    try:
+        deteccao = buscar_deteccao_por_id(deteccao_id)
+        if not deteccao:
+            raise HTTPException(status_code=404, detail="Detecção não encontrada")
+        return {
+            "id": deteccao.id,
+            "imagem_id": deteccao.imagem_id,
+            "planta_id": deteccao.planta_id,
+            "doenca_id": deteccao.doenca_id,
+            "porcentagem_confianca": deteccao.porcentagem_confianca,
+            "data_deteccao": deteccao.data_deteccao,
+            "recomendacao": deteccao.recomendacoes[0].texto_recomendacao if deteccao.recomendacoes else None
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

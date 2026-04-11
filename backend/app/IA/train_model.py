@@ -64,7 +64,7 @@ for layer in base_model.layers[-30:]:
 inputs = tf.keras.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
 
 x = data_augmentation(inputs)
-x = preprocess(x)  # 🔥 ESSENCIAL
+x = preprocess(x)  
 x = base_model(x, training=False)
 x = tf.keras.layers.GlobalAveragePooling2D()(x)
 x = tf.keras.layers.BatchNormalization()(x)

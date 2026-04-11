@@ -9,7 +9,7 @@ from app.routes import imagem_routes
 
 app = FastAPI(
     title="CemaPlant API",
-    description="API para identificação de pragas com IA",
+    description="API para identificação de doenças com IA",
     version="1.0.0"
 )
 
