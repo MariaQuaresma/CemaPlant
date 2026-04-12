@@ -23,12 +23,40 @@ with open(CLASS_DOENCA_PATH, "r") as f:
 
 IMG_SIZE = 224
 
+ALIASES_PREFIXO_DOENCA = {
+    "Cherry": "Cherry_(including_sour)",
+    "Corn": "Corn_(maize)",
+    "Pepper": "Pepper,_bell",
+}
+
 def preprocess(img: Image.Image):
     img = img.resize((IMG_SIZE, IMG_SIZE))
     img_array = np.array(img).astype(np.float32)
-    img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
+    img_array = tf.keras.applications.efficientnet.preprocess_input(img_array)
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
+
+
+def _obter_prefixo_doenca_para_planta(planta_nome: str) -> str:
+    return ALIASES_PREFIXO_DOENCA.get(planta_nome, planta_nome)
+
+
+def _obter_prefixo_classe_doenca(classe_doenca: str) -> str:
+    return classe_doenca.split("___", 1)[0]
+
+
+def _selecionar_par_por_doenca(pred_planta: np.ndarray, pred_doenca: np.ndarray):
+    doenca_id = int(np.argmax(pred_doenca))
+    doenca_completa = classes_doencas[doenca_id]
+    conf_doenca = float(pred_doenca[0][doenca_id])
+
+    prefixo_planta = _obter_prefixo_classe_doenca(doenca_completa)
+    planta_nome = _obter_prefixo_doenca_para_planta(prefixo_planta)
+
+    planta_id = classes_plantas.index(planta_nome) if planta_nome in classes_plantas else int(np.argmax(pred_planta))
+    conf_planta = float(pred_planta[0][planta_id]) if planta_nome in classes_plantas else float(np.max(pred_planta))
+
+    return planta_nome, conf_planta, doenca_completa, conf_doenca
 
 
 def prever_imagem(caminho_imagem: str):
@@ -40,14 +68,11 @@ def prever_imagem(caminho_imagem: str):
         img_array = preprocess(img)
 
         pred_planta = model_planta.predict(img_array, verbose=0)
-        planta_id = int(np.argmax(pred_planta))
-        planta_nome = classes_plantas[planta_id]
-        conf_planta = float(np.max(pred_planta))
-
         pred_doenca = model_doenca.predict(img_array, verbose=0)
-        doenca_id = int(np.argmax(pred_doenca))
-        doenca_completa = classes_doencas[doenca_id]
-        conf_doenca = float(np.max(pred_doenca))
+        planta_nome, conf_planta, doenca_completa, conf_doenca = _selecionar_par_por_doenca(
+            pred_planta,
+            pred_doenca,
+        )
 
         partes_doenca = doenca_completa.split("___", 1)
         if len(partes_doenca) == 2:
@@ -56,7 +81,7 @@ def prever_imagem(caminho_imagem: str):
             doenca_nome = doenca_completa
 
         resultado = f"{planta_nome}___{doenca_nome}"
-        confianca_final = (conf_planta + conf_doenca) / 2
+        confianca_final = max(conf_doenca, (conf_planta + conf_doenca) / 2)
 
         print(f"[IA] Planta: {planta_nome} ({conf_planta:.4f})")
         print(f"[IA] Doença: {doenca_nome} ({conf_doenca:.4f})")
