@@ -1,0 +1,22 @@
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+.git
+.gitignore
+node_modules
+.env
+
+*.h5
+*.pt
+
+# datasets 
+dataset_doencas/
+dataset_plantas/
+backend/app/uploads/
+uploads/
+
+# logs
+*.log

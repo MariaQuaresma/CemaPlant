@@ -1,77 +1,235 @@
-# 🌱 CemaPlant – Identifica Doenças nas plantas
+# 🌱 CemaPlant - IA para Identificacao de Doencas em Plantas
 
-O **CemaPlant** é um aplicativo que utiliza **Inteligência Artificial, Visão Computacional e Machine Learning** para auxiliar agricultores familiares na identificação de doenças em plantações. A partir do envio de imagens, o sistema analisa a planta, identifica possíveis doenças e fornece recomendações de **remédios caseiros e tratamentos naturais** para ajudar no controle da infestação.
+API backend em FastAPI para cadastro de usuarios, upload de imagens, deteccao de doencas em plantas com IA e geracao de recomendacoes.
 
----
+## Sumario
 
-# 🧠 Tecnologias Utilizadas
-* Python
-* FastAPI
-* SQLAlchemy
-* PostgreSQL
-* Alembic
+- [Visao geral](#visao-geral)
+- [Stack do projeto](#stack-do-projeto)
+- [Estrutura principal](#estrutura-principal)
+- [Pre-requisitos](#pre-requisitos)
+- [Configuracao de ambiente (.env)](#configuracao-de-ambiente-env)
+- [Rodando com Docker (recomendado)](#rodando-com-docker-recomendado)
+- [Rodando localmente sem Docker](#rodando-localmente-sem-docker)
+- [Como validar se esta funcionando](#como-validar-se-esta-funcionando)
+- [Fluxo basico da API](#fluxo-basico-da-api)
+- [Troubleshooting](#troubleshooting)
 
-Inteligência Artificial:
-* Visão Computacional
-* Machine Learning
+## Visao geral
 
+O CemaPlant recebe imagens de folhas, identifica a planta/doenca e persiste os dados no PostgreSQL. A API tambem gera recomendacoes para cada deteccao.
 
-# ⚙️ Como iniciar o projeto
-1️⃣ Clonar o repositório
+## 🧠 Stack do projeto
+
+- Python 3.11
+- FastAPI
+- Uvicorn
+- SQLAlchemy
+- Alembic
+- PostgreSQL 15
+- Docker / Docker Compose
+
+## Estrutura principal
+
+```text
+.
+|-- docker-compose.yml
+|-- backend/
+|   |-- Dockerfile
+|   |-- requirements.txt
+|   |-- alembic.ini
+|   |-- migrations/
+|   `-- app/
+|       |-- main.py
+|       |-- database.py
+|       |-- routes/
+|       |-- services/
+|       |-- models/
+|       |-- auth/
+|       `-- IA/
 ```
+
+## Pre-requisitos
+
+### Para Docker
+
+- Docker Desktop instalado e em execucao
+- Docker Compose v2 (`docker compose`)
+
+### Para execucao local (sem Docker)
+
+- Python 3.11
+- PostgreSQL 15 (ou compativel)
+
+## Configuracao de ambiente (.env)
+
+No diretorio `backend/`, crie um arquivo `.env` com base no `.env.example`:
+
+```bash
+cd backend
+copy .env.example .env
+```
+
+Preencha os valores. Exemplo para execucao local (Postgres fora do Docker):
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/cemaplant
+OPENROUTER_API_KEY=sua_chave_aqui
+```
+
+Observacao:
+- Em Docker, o hostname do banco deve ser `db` (na rede do compose).
+- Localmente, normalmente sera `localhost`.
+
+## ⚙️Rodando com Docker (recomendado)
+
+No diretorio raiz do projeto:
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+Se quiser rodar em background:
+
+```bash
+docker compose up --build -d
+```
+
+Ver status:
+
+```bash
+docker compose ps
+```
+
+Ver logs do backend:
+
+```bash
+docker compose logs -f backend
+```
+
+Parar tudo:
+
+```bash
+docker compose down
+```
+
+Depois para roda em modo normal:
+
+```bash
+docker compose up
+```
+
+## ⚙️Rodando localmente sem Docker
+### 1. Clonar o repositório
+
+```bash
 git clone <url-do-repositorio>
 ```
+### 2. Entrar no backend
 
-
-2️⃣ Entrar na pasta do backend
-```
+```bash
 cd backend
 ```
 
-3️⃣ Criar ambiente virtual
-```
+### 3. Criar e ativar ambiente virtual
+
+Terminal (Windows):
+
+```terminal
 py -3.11 -m venv venv
-```
-
-
-4️⃣ Ativar ambiente virtual
-Windows:
-```
 venv\Scripts\activate
 ```
+PowerShell (Windows):
 
-5️⃣ Instalar dependências
+```powershell
+py -3.11 -m venv venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\venv\Scripts\Activate.ps1
 ```
+
+### 4. Instalar dependencias
+
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### 5. Configurar `.env`
 
-6️⃣ Configurar variáveis de ambiente
+Garanta que `DATABASE_URL` aponta para o seu PostgreSQL local.
 
-Criar arquivo `.env` na pasta **backend**:
-```
-DATABASE_URL=postgresql://usuario:senha@localhost:5432/cemaplant
-```
+### 6. Rodar migrations
 
-
-7️⃣ Executar as migrations do banco
-```
-python -m alembic upgrade head
+```bash
+alembic upgrade head
 ```
 
-8️⃣ Iniciar a API
-```
+### 7. Iniciar API
+
+```bash
 uvicorn app.main:app --reload
 ```
----
 
-# 🌐 Acessar a API
-Servidor local:
-```
-http://127.0.0.1:8000
-```
-Documentação automática:
+## 🌐 Como validar se esta funcionando
 
+Com a API no ar, acesse:
+
+- Home: `http://127.0.0.1:8000/` ou `http://localhost:8000/`
+- Swagger: `http://127.0.0.1:8000/docs` ou `http://localhost:8000/docs`
+
+## Fluxo basico da API
+
+Muitas rotas exigem usuario autenticado via cookie `access_token`.
+
+Passo a passo sugerido:
+
+1. Registrar usuario: `POST /usuarios/registrar`
+2. Fazer login: `POST /usuarios/login` (define cookie)
+3. Enviar imagem para deteccao: `POST /deteccoes/`
+4. Consultar resultados:
+	- `GET /deteccoes/usuario`
+	- `GET /doencas/usuario`
+	- `GET /recomendacoes/usuario`
+
+## Troubleshooting
+
+### Erro: `sqlalchemy.exc.NoSuchModuleError: Can't load plugin: sqlalchemy.dialects:driver`
+
+Esse erro acontece quando a URL do banco esta invalida (placeholder `driver://...`).
+
+Checklist:
+
+1. Confirme se `backend/.env` existe.
+2. Confirme se `DATABASE_URL` esta completa e valida.
+3. Em Docker, use host `db`:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@db:5432/cemaplant
 ```
-http://127.0.0.1:8000/docs
+
+4. Reconstrua os containers:
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+### Build Docker muito lento (contexto muito grande)
+
+Se o build estiver transferindo centenas de MB, revise `backend/.dockerignore` para excluir:
+
+- `venv/`
+- `app/uploads/`
+- datasets/modelos grandes
+- `__pycache__/`
+
+### Erro de instalacao via `requirements.txt` no Windows
+
+Se o arquivo foi gerado com `pip freeze > requirements.txt` no PowerShell, ele pode ficar em UTF-16 e quebrar o build.
+
+Para gerar em UTF-8:
+
+```powershell
+pip freeze | Out-File -Encoding utf8 requirements.txt
 ```

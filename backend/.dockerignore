@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.git/
+.env
+
+app/uploads/
+uploads/
+dataset_doencas/
+dataset_plantas/
+
+*.log

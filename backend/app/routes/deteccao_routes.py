@@ -20,6 +20,18 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 def _normalizar_nome_planta(planta_nome: str) -> str:
     return planta_nome.replace("_(including_sour)", "").replace(",_bell", "").replace("_", " ").strip()
 
+DOENCA_ALIASES = {
+    "Leaf_Molde": "Leaf_Mold",
+    "Leaf mold": "Leaf_Mold",
+    "Leaf Mold": "Leaf_Mold",
+    "Target spot": "Target_Spot",
+    "Septoria leaf spot": "Septoria_leaf_spot",
+}
+
+def _normalizar_nome_doenca(doenca_nome: str) -> str:
+    doenca_limpa = doenca_nome.strip()
+    return DOENCA_ALIASES.get(doenca_limpa, doenca_limpa)
+
 def _buscar_ou_criar_doenca(db, planta_nome: str, doenca_nome: str):
     nome_completo = f"{planta_nome}___{doenca_nome}"
 
@@ -71,13 +83,11 @@ MAPA_PLANTA_DOENCAS = {
     ]
 }
 
-
 PLANTA_ALIASES = {
     "Cherry_(including_sour)": "Cherry",
     "Corn_(maize)": "Corn",
     "Pepper,_bell": "Pepper",
 }
-
 
 def _resolver_planta_para_mapa(planta_nome: str) -> str:
     if planta_nome in MAPA_PLANTA_DOENCAS:
@@ -101,7 +111,7 @@ def detectar_doenca(file: UploadFile = File(...), usuario=Depends(get_usuario_lo
         if len(partes) != 2:
             raise HTTPException(status_code=500, detail="Erro ao interpretar resultado da IA")
         planta_nome = partes[0]
-        doenca_nome = partes[1]
+        doenca_nome = _normalizar_nome_doenca(partes[1])
         
         plantas_com_poucos_dados = {"Blueberry", "Raspberry", "Soybean", "Orange"}
         if doenca_nome == "healthy" or planta_nome in plantas_com_poucos_dados:

@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:15
+    container_name: cemaplant_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cemaplant
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: cemaplant_api
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/cemaplant
+    volumes:
+      - ./backend/app/uploads:/app/app/uploads
+    env_file:
+      - ./backend/.env
+    command: >
+      sh -c "sleep 5 &&
+             alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+             
+volumes:
+  postgres_data:
