@@ -106,7 +106,7 @@ function renderizarGaleria(imagens, deteccoes, plantas, doencas) {
             }
         });
     }
-    imagensValidas.slice(0, 12).forEach((img) => {
+    imagensValidas.forEach((img) => {
         const card = document.createElement("article");
         card.className = "thumb-card";
         const preview = document.createElement("img");
@@ -119,7 +119,6 @@ function renderizarGaleria(imagens, deteccoes, plantas, doencas) {
         preview.onerror = () => {
             console.error(`[GALERIA] Erro ao carregar imagem ${img.id} de ${urlResolvida}`);
             preview.style.backgroundColor = "rgba(35, 69, 93, 0.1)";
-            // Usar um placeholder SVG como fallback
             preview.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f0f0f0' width='200' height='200'/%3E%3Ctext x='100' y='100' font-family='Arial' font-size='20' fill='%23999' text-anchor='middle' dy='.3em'%3E❌ Erro%3C/text%3E%3C/svg%3E";
         };
         preview.onload = () => {
@@ -165,7 +164,7 @@ function atualizarUsuarioLogado() {
         auth.textContent = "Sessão não autenticada";
         return;
     }
-    auth.textContent = `Conectado como ${user.nome}`;
+    auth.textContent = `Bem vindo(a) ${user.nome}`;
 }
 
 async function carregarResumoDashboard() {

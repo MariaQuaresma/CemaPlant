@@ -52,6 +52,7 @@ O CemaPlant recebe imagens de folhas, identifica a planta/doenca e persiste os d
 |       |-- models/
 |       |-- auth/
 |       `-- IA/
+|       `-- uploads/imagens (imagens de plantas e doenças que a IA identifica sem errar)
 `-- frontend/
 	|-- index.html
 	|-- login.html
@@ -207,7 +208,7 @@ Passo a passo sugerido:
 
 1. Registrar usuario: `POST /usuarios/registrar`
 2. Fazer login: `POST /usuarios/login` (define cookie)
-3. Enviar imagem para deteccao: `POST /deteccoes/`
+3. Enviar imagem para deteccao: `POST /deteccoes/` (Em backend/app/uploads/imagens tem imagens de plantas e doenças que a IA identifica sem errar)
 4. Consultar resultados:
 	- `GET /deteccoes/usuario`
 	- `GET /doencas/usuario`
@@ -225,6 +226,7 @@ Passo a passo sugerido:
 4. `pages/detectar.html`
 	- envia imagem (JPG/PNG) para `POST /deteccoes/`
 	- apresenta resultado da deteccao com confianca
+	- Em backend/app/uploads/imagens tem imagens de plantas e doenças que a IA identifica sem errar.
 5. `pages/historico.html`
 	- lista historico do usuario usando endpoints `/usuario`
 
