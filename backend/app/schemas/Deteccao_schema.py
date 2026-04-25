@@ -1,6 +1,9 @@
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, field_serializer
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from typing import Optional
+
+TZ_BRASILIA = ZoneInfo("America/Sao_Paulo")
 
 class DeteccaoBase(BaseModel):
     imagem_id: int
@@ -14,6 +17,11 @@ class DeteccaoCreate(DeteccaoBase):
 class DeteccaoRead(DeteccaoBase):
     id: int
     data_deteccao: datetime
+
+    @field_serializer("data_deteccao")
+    def serialize_data_deteccao(self, value: datetime):
+        data = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        return data.astimezone(TZ_BRASILIA)
 
     class Config:
         from_attributes = True

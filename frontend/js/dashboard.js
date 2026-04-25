@@ -20,17 +20,49 @@ function setStatus(texto, tipo = "") {
     }
 }
 
+const TIMEZONE_BRASILIA = "America/Sao_Paulo";
+
+function parseDataBackend(valor) {
+    if (valor instanceof Date) {
+        return valor;
+    }
+    if (typeof valor === "string") {
+        const texto = valor.trim();
+        const temFuso = /([zZ]|[+-]\d{2}:?\d{2})$/.test(texto);
+        if (temFuso) {
+            return new Date(texto.replace(" ", "T"));
+        }
+        const m = texto.match(
+            /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,6}))?)?)?$/
+        );
+        if (m) {
+            const ano = Number(m[1]);
+            const mes = Number(m[2]) - 1;
+            const dia = Number(m[3]);
+            const hora = Number(m[4] || 0);
+            const minuto = Number(m[5] || 0);
+            const segundo = Number(m[6] || 0);
+            const micros = m[7] || "0";
+            const ms = Number(micros.slice(0, 3).padEnd(3, "0"));
+            return new Date(Date.UTC(ano, mes, dia, hora, minuto, segundo, ms));
+        }
+        return new Date(`${texto.replace(" ", "T")}Z`);
+    }
+    return new Date(valor);
+}
+
 function formatarData(valor) {
     if (!valor) {
         return "-";
     }
-    const data = new Date(valor);
+    const data = parseDataBackend(valor);
     if (Number.isNaN(data.getTime())) {
         return valor;
     }
     return new Intl.DateTimeFormat("pt-BR", {
         dateStyle: "short",
-        timeStyle: "short"
+        timeStyle: "short",
+        timeZone: TIMEZONE_BRASILIA
     }).format(data);
 }
 
